@@ -235,6 +235,58 @@ def menu_recursos(iam: IAMSystem):
         else:
             err("Opción no válida.")
 
+# Escenario
+
+def cargar_demo(iam: IAMSystem):
+   
+    #Hacemos un escenario de empresa ficticia para la demostración.
+    #Jerarquía de roles: empleado -> developer -> admin -> superadmin
+
+    # Roles con jerarquía (árbol de herencia)
+    iam.crear_rol("empleado")
+    iam.crear_rol("developer", padre_nombre="empleado")
+    iam.crear_rol("admin", padre_nombre="developer")
+    iam.crear_rol("superadmin", padre_nombre="admin")
+    iam.crear_rol("auditor")  # Rol independiente
+
+    # Permisos por rol
+    iam.agregar_permiso_a_rol("empleado",  "leer_informes")
+    iam.agregar_permiso_a_rol("developer", "leer_codigo")
+    iam.agregar_permiso_a_rol("developer", "escribir_codigo")
+    iam.agregar_permiso_a_rol("admin",     "gestionar_usuarios")
+    iam.agregar_permiso_a_rol("admin",     "ver_logs")
+    iam.agregar_permiso_a_rol("superadmin","acceso_total")
+    iam.agregar_permiso_a_rol("auditor",   "ver_logs")
+    iam.agregar_permiso_a_rol("auditor",   "leer_informes")
+
+    # Usuarios
+    iam.crear_usuario("alice")
+    iam.crear_usuario("bob")
+    iam.crear_usuario("carol")
+    iam.crear_usuario("dave")
+
+    iam.asignar_rol_a_usuario("alice", "superadmin")
+    iam.asignar_rol_a_usuario("bob",   "developer")
+    iam.asignar_rol_a_usuario("carol", "auditor")
+    iam.asignar_rol_a_usuario("dave",  "empleado")
+
+    # Recursos
+    iam.crear_recurso("repositorio_git",  "medio")
+    iam.crear_recurso("panel_admin",      "alto")
+    iam.crear_recurso("logs_sistema",     "alto")
+    iam.crear_recurso("bd_produccion",    "critico")
+    iam.crear_recurso("informes_ventas",  "bajo")
+
+    iam.agregar_permiso_requerido_a_recurso("repositorio_git", "leer_codigo")
+    iam.agregar_permiso_requerido_a_recurso("repositorio_git", "escribir_codigo")
+    iam.agregar_permiso_requerido_a_recurso("panel_admin",     "gestionar_usuarios")
+    iam.agregar_permiso_requerido_a_recurso("logs_sistema",    "ver_logs")
+    iam.agregar_permiso_requerido_a_recurso("bd_produccion",   "acceso_total")
+    iam.agregar_permiso_requerido_a_recurso("informes_ventas", "leer_informes")
+
+    ok("Usuarios: alice (superadmin), bob (developer), carol (auditor), dave (empleado)")
+    ok("Recursos: repositorio_git, panel_admin, logs_sistema, bd_produccion, informes_ventas")
+
 # Main
 
 def main():
@@ -277,6 +329,9 @@ def main():
         elif op == "6":
             filtro = pedir("Filtrar por tipo de evento (Enter para todos)")
             iam.imprimir_log(filtro_tipo=filtro if filtro else None)
+
+        elif op == "7":
+            cargar_demo(iam)
         
         elif op == "0":
             print("\n  Cerrando sistema IAM. Hasta luego.\n")
