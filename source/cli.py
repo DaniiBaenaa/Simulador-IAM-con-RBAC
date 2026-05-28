@@ -252,6 +252,31 @@ def main():
         
         elif op == "3":
             menu_recursos(iam)
+
+        elif op == "4":
+            nombre_u = pedir("Nombre del usuario")
+            nombre_rec = pedir("Nombre del recurso")
+            resultado = iam.verificar_acceso(nombre_u, nombre_rec)
+            if resultado:
+                ok(f" CONCEDIDO — '{nombre_u}' puede acceder a '{nombre_rec}'")
+            else:
+                print(f"  DENEGADO — '{nombre_u}' no tiene permisos para '{nombre_rec}'")
+
+        elif op == "5":
+            nombre_u = pedir("Nombre del usuario")
+            try:
+                informe = iam.informe_usuario(nombre_u)
+                print(f"  INFORME: {informe['usuario']}")
+                print(f"  Roles asignados     : {', '.join(informe['roles']) or 'ninguno'}")
+                print(f"  Permisos efectivos  : {', '.join(informe['permisos_efectivos']) or 'ninguno'}")
+                print(f"  Recursos accesibles : {', '.join(informe['recursos_accesibles']) or 'ninguno'}")
+                print(f"  Recursos denegados  : {', '.join(informe['recursos_denegados']) or 'ninguno'}")
+            except KeyError as e:
+                err(str(e))
+
+        elif op == "6":
+            filtro = pedir("Filtrar por tipo de evento (Enter para todos)")
+            iam.imprimir_log(filtro_tipo=filtro if filtro else None)
         
         elif op == "0":
             print("\n  Cerrando sistema IAM. Hasta luego.\n")
