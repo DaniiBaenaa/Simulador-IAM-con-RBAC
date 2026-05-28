@@ -52,6 +52,15 @@ MENU_USUARIOS = """
   0 Volver
 """
 
+MENU_ROLES = """
+  1 Crear rol
+  2 Añadir permiso a rol
+  3 Revocar permiso de rol
+  4 Ver detalle de rol
+  5 Listar roles
+  0 Volver
+"""
+
 
 def pedir(prompt: str) -> str:
     return input(f" {prompt}: ").strip()
@@ -114,6 +123,75 @@ def menu_usuarios(iam: IAMSystem):
         else:
             err("Opción no válida.")
 
+def menu_roles(iam: IAMSystem):
+    while True:
+        print(MENU_ROLES)
+        op = pedir("Opción")
+
+        if op == "1":
+            nombre = pedir("Nombre del nuevo rol")
+            padre = pedir("Nombre del rol padre (Enter para ninguno)")
+            try:
+                r = iam.crear_rol(nombre, padre if padre else None)
+                ok(r.describir())
+            except (ValueError, KeyError) as e:
+                err(str(e))
+
+        elif op == "2":
+            nombre_r = pedir("Nombre del rol")
+            permiso = pedir("Permiso a añadir")
+            try:
+                if iam.agregar_permiso_a_rol(nombre_r, permiso):
+                    ok(f"Permiso '{permiso}' añadido al rol '{nombre_r}'.")
+                else:
+                    info("El rol ya tenía ese permiso.")
+            except KeyError as e:
+                err(str(e))
+
+        elif op == "3":
+            nombre_r = pedir("Nombre del rol")
+            permiso = pedir("Permiso a revocar")
+            try:
+                r = iam.obtener_rol(nombre_r)
+                if r.revocar_permiso(permiso):
+                    ok(f"Permiso '{permiso}' revocado del rol '{nombre_r}'.")
+                else:
+                    info("El rol no tenía ese permiso.")
+            except KeyError as e:
+                err(str(e))
+
+        elif op == "4":
+            nombre_r = pedir("Nombre del rol")
+            try:
+                r = iam.obtener_rol(nombre_r)
+                print()
+                print(f"    {r.describir()}")
+                todos = r.obtener_todos_permisos()
+                heredados = todos - r.permisos_directos
+                if heredados:
+                    print(f"    Permisos heredados: [{', '.join(sorted(heredados))}]")
+                print(f"    Permisos efectivos totales: [{', '.join(sorted(todos))}]")
+                print()
+            except KeyError as e:
+                err(str(e))
+
+        elif op == "5":
+            roles = iam.listar_roles()
+            if not roles:
+                info("No hay roles registrados.")
+            else:
+                print()
+                for r in roles:
+                    print(f"    {r.describir()}")
+                print()
+
+        elif op == "0":
+            break
+        else:
+            err("Opción no válida.")
+
+
+
 # Main
 
 def main():
@@ -125,6 +203,9 @@ def main():
         op = pedir("Opción")
         if op == "1":
             menu_usuarios(iam)
+
+        elif op == "2":
+            menu_roles(iam)
         
         elif op == "0":
             print("\n  Cerrando sistema IAM. Hasta luego.\n")
