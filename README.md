@@ -63,6 +63,9 @@ IAMSystem  (motor central, gestiona les tres entitats)
 ### Estructures de dades
 
  dict (taula hash) --> Usuaris, rols, recursos per nom -- >O(1) accés 
+
  set (taula hash) -->   Permisos per rol, rols per usuari --> O(1) inserció/cerca, sense duplicats 
+
  list -->  Log d'auditoria --> O(1) append, O(n) lectura 
+
  Arbre de punters --> Jerarquia de rols (_pare) --> O(h·p) recorregut recursiu 
