@@ -61,6 +61,13 @@ MENU_ROLES = """
   0 Volver
 """
 
+MENU_RECURSOS = """
+  1 Crear recurso
+  2 Añadir permiso requerido a recurso
+  3 Listar recursos
+  0 Volver
+"""
+
 
 def pedir(prompt: str) -> str:
     return input(f" {prompt}: ").strip()
@@ -190,7 +197,43 @@ def menu_roles(iam: IAMSystem):
         else:
             err("Opción no válida.")
 
+def menu_recursos(iam: IAMSystem):
+    while True:
+        print(MENU_RECURSOS)
+        op = pedir("Opción")
 
+        if op == "1":
+            nombre = pedir("Nombre del recurso")
+            nivel = pedir("Nivel de sensibilidad (bajo/medio/alto/critico)")
+            try:
+                rec = iam.crear_recurso(nombre, nivel)
+                ok(rec.describir())
+            except (ValueError, KeyError) as e:
+                err(str(e))
+
+        elif op == "2":
+            nombre_rec = pedir("Nombre del recurso")
+            permiso = pedir("Permiso requerido")
+            try:
+                iam.agregar_permiso_requerido_a_recurso(nombre_rec, permiso)
+                ok(f"Permiso '{permiso}' añadido como requerido en '{nombre_rec}'.")
+            except KeyError as e:
+                err(str(e))
+
+        elif op == "3":
+            recursos = iam.listar_recursos()
+            if not recursos:
+                info("No hay recursos registrados.")
+            else:
+                print()
+                for rec in recursos:
+                    print(f"    {rec.describir()}")
+                print()
+
+        elif op == "0":
+            break
+        else:
+            err("Opción no válida.")
 
 # Main
 
@@ -206,6 +249,9 @@ def main():
 
         elif op == "2":
             menu_roles(iam)
+        
+        elif op == "3":
+            menu_recursos(iam)
         
         elif op == "0":
             print("\n  Cerrando sistema IAM. Hasta luego.\n")
