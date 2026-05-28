@@ -39,3 +39,30 @@ En entorns empresarials, controlar qui accedeix a cada recurs és critic i pot s
 - Benchmark empíric de complexitat
 - Suite de 26 tests unitaris
 
+## 6. Ús de POO i polimorfisme
+
+### Jerarquia de classes
+
+Entitat:  Usuario te un Rol que te acces a Recurso
+
+IAMSystem  (motor central, gestiona les tres entitats)
+
+### On s'aplica el polimorfisme
+
+- La classe abstracta Entitat defineix els mètodes describir() i tipo() com a abstractes.
+- Cada subclasse (Usuario, Rol, Recurso) els implementa de forma diferent.
+- IAMSystem pot cridar entitat.describir() sense saber de quin tipus concret es tracta → polimorfisme com s'ens demana.
+- El mètode __eq__ i __hash__ es defineixen a Entitat i funcionen per a totes les subclasses.
+
+### Recursivitat
+
+- Rol.tiene_permiso(permiso, visitados) — crida recursivament al _padre fins trobar el permís o arribar a l'arrel.
+- Rol.obtener_todos_permisos(visitados) — acumula permisos de tota la cadena d'herència recursivament.
+- Ambdues funcions porten un set de visitados per evitar cicles infinits.
+
+### Estructures de dades
+
+ dict (taula hash) --> Usuaris, rols, recursos per nom -- >O(1) accés 
+ set (taula hash) -->   Permisos per rol, rols per usuari --> O(1) inserció/cerca, sense duplicats 
+ list -->  Log d'auditoria --> O(1) append, O(n) lectura 
+ Arbre de punters --> Jerarquia de rols (_pare) --> O(h·p) recorregut recursiu 
