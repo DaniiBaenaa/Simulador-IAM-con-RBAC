@@ -69,3 +69,38 @@ IAMSystem  (motor central, gestiona les tres entitats)
  list -->  Log d'auditoria --> O(1) append, O(n) lectura 
 
  Arbre de punters --> Jerarquia de rols (_pare) --> O(h·p) recorregut recursiu 
+
+
+ ## 7. Instruccions d'execució i dependències
+Aclarar que totes les comandes que surten estan pensades per ser executades en bash
+### Requisits
+
+- Python
+- Llibreries estàndard úniques per al sistema principal (`abc`, `time`)
+
+### Executar el simulador interactiu (CLI)
+
+cd source
+python cli.py
+
+Un cop dins, selecciona 7 Cargar escenario de demo per veure el sistema en acció amb usuaris i rols preconfigurats.
+
+### Executar els tests unitaris
+
+cd source
+python tests.py
+
+### Executar el benchmark de complexitat
+
+cd source
+python benchmark.py
+
+
+## 8. Vídeo demostratiu
+
+el video no esta fet encara jeje
+
+
+## 9. Ús d'eines externes o IA
+
+- **IA / LLMs**: Tot i que en un principi no voliem fer cap us, ens hem vist obligats a resoldre problemes amb la IA, parts de codi incorrectes que no sabiem identificar la fallada, execucions que no funcionaven i haviem de solucionar i 2 ajudes en escritura, en els pdfs, la vam utilitzar per que ens guies amb l'estructura d'amdos docuemnts
