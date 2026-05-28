@@ -176,3 +176,36 @@ class Rol(Entidad):
 
     def tipo(self) -> str:
         return "Rol"
+    
+
+class Recurso(Entidad):
+    # Representa un recurso protegido del sistema (archivo, servicio, endpoint...).
+    # Cada recurso tiene un nivel de sensibilidad y un set de permisos requeridos.
+
+    NIVELES = {"bajo", "medio", "alto", "critico"}
+
+    def __init__(self, nombre: str, nivel: str = "medio"):
+        super().__init__(nombre)
+        if nivel not in self.NIVELES:
+            raise ValueError(f"Nivel '{nivel}' no válido. Opciones: {self.NIVELES}")
+        self._nivel = nivel
+        # Set de permisos requeridos para acceder — O(1) consulta
+        self._permisos_requeridos: set[str] = set()
+
+    @property
+    def nivel(self) -> str:
+        return self._nivel
+
+    def agregar_permiso_requerido(self, permiso: str) -> None:
+        #O(1)
+        self._permisos_requeridos.add(permiso)
+
+    def permisos_requeridos(self) -> frozenset:
+        return frozenset(self._permisos_requeridos)
+
+    def describir(self) -> str:
+        req_str = ", ".join(sorted(self._permisos_requeridos)) if self._permisos_requeridos else "ninguno"
+        return f"Recurso '{self._nombre}' [nivel: {self._nivel}] — permisos requeridos: [{req_str}]"
+
+    def tipo(self) -> str:
+        return "Recurso"
