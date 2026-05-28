@@ -43,10 +43,76 @@ MENU_PRINCIPAL = """
   0 Salir
 """
 
+MENU_USUARIOS = """
+  1 Crear usuario
+  2 Eliminar usuario
+  3 Asignar rol a usuario
+  4 Revocar rol de usuario
+  5 Listar usuarios
+  0 Volver
+"""
+
 
 def pedir(prompt: str) -> str:
     return input(f" {prompt}: ").strip()
 
+# Submenus
+
+def menu_usuarios(iam: IAMSystem):
+    while True:
+        print(MENU_USUARIOS)
+        op = pedir("Opción")
+        if op == "1":
+            nombre = pedir("Nombre del nuevo usuario")
+            try:
+                u = iam.crear_usuario(nombre)
+                ok(u.describir())
+            except ValueError as e:
+                err(str(e))
+
+        elif op == "2":
+            nombre = pedir("Nombre del usuario a eliminar")
+            if iam.eliminar_usuario(nombre):
+                ok(f"Usuario '{nombre}' eliminado.")
+            else:
+                err(f"Usuario '{nombre}' no encontrado.")
+
+        elif op == "3":
+            nombre_u = pedir("Nombre del usuario")
+            nombre_r = pedir("Nombre del rol")
+            try:
+                if iam.asignar_rol_a_usuario(nombre_u, nombre_r):
+                    ok(f"Rol '{nombre_r}' asignado a '{nombre_u}'.")
+                else:
+                    info(f"El usuario ya tenía ese rol.")
+            except (KeyError, ValueError) as e:
+                err(str(e))
+
+        elif op == "4":
+            nombre_u = pedir("Nombre del usuario")
+            nombre_r = pedir("Nombre del rol a revocar")
+            try:
+                if iam.revocar_rol_de_usuario(nombre_u, nombre_r):
+                    ok(f"Rol '{nombre_r}' revocado de '{nombre_u}'.")
+                else:
+                    info(f"El usuario no tenía ese rol.")
+            except KeyError as e:
+                err(str(e))
+
+        elif op == "5":
+            usuarios = iam.listar_usuarios()
+            if not usuarios:
+                info("No hay usuarios registrados.")
+            else:
+                print()
+                for u in usuarios:
+                    print(f"    {u.describir()}")
+                print()
+
+        elif op == "0":
+            break
+        else:
+            err("Opción no válida.")
 
 # Main
 
@@ -57,8 +123,10 @@ def main():
     while True:
         print(MENU_PRINCIPAL)
         op = pedir("Opción")
-
-        if op == "0":
+        if op == "1":
+            menu_usuarios(iam)
+        
+        elif op == "0":
             print("\n  Cerrando sistema IAM. Hasta luego.\n")
             break
         else:
