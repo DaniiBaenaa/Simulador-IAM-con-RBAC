@@ -42,6 +42,50 @@ def tabla(titulo: str, filas: list[tuple]):
     for nombre, stats in filas:
         print(f"  {nombre:<35} {stats['media']:>10} {stats['mediana']:>12} {stats['stdev']:>8}")
 
+def benchmark_operaciones_basicas():
 
+    # O(1) creación y acceso directo
+    iam = IAMSystem("Bench")
+
+    for i in range(500):
+        iam.crear_usuario(f"u_{i}")
+        iam.crear_rol(f"r_{i}")
+        iam.crear_recurso(f"res_{i}")
+
+    filas = []
+
+    # O(1)
+    contador = [500]
+    def crear_u():
+        iam.crear_usuario(f"u_new_{contador[0]}")
+        contador[0] += 1
+    filas.append(("Crear usuario [O(1)]", medir(crear_u, 200)))
+
+    # O(1)
+    filas.append(("Obtener usuario [O(1)]", medir(lambda: iam.obtener_usuario("u_250"), 2000)))
+
+    # O(1)
+    cont_r = [500]
+    def crear_r():
+        iam.crear_rol(f"r_new_{cont_r[0]}")
+        cont_r[0] += 1
+    filas.append(("Crear rol [O(1)]", medir(crear_r, 200)))
+
+    # O(1)
+    rol = iam.obtener_rol("r_0")
+    cont_p = [0]
+    def agregar_p():
+        rol.agregar_permiso(f"perm_{cont_p[0]}")
+        cont_p[0] += 1
+    filas.append(("Agregar permiso a rol [O(1)]", medir(agregar_p, 500)))
+
+    # O(1)
+    rol2 = iam.obtener_rol("r_1")
+    rol2.agregar_permiso("test_perm")
+    filas.append(("Permiso directo [O(1)]", medir(lambda: rol2.tiene_permiso_directo("test_perm"), 5000)))
+
+    tabla("BENCHMARK 1 — Operaciones bàsicas O(1)", filas)
+    
 if __name__ == "__main__":
     print("  ANÁLISIS EMPÍRICO DE COMPLEJIDAD — Simulador IAM con RBAC")
+    benchmark_operaciones_basicas()
