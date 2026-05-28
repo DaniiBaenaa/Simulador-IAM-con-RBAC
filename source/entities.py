@@ -37,7 +37,6 @@ class Entidad(ABC):
         return hash((self._nombre, self.tipo()))
 
 
-
 class Usuario(Entidad):
     #  Representa un usuario del sistema.
     # Puede tener uno o más roles asignados.
@@ -77,3 +76,103 @@ class Usuario(Entidad):
 
     def tipo(self) -> str:
         return "Usuario"
+
+
+class Rol(Entidad):
+    
+    #Representa un rol dentro del sistema RBAC.
+    # Soporta herencia de roles: un Rol puede tener un rol padre.
+    # Los permisos se almacenan en un set.
+
+    def __init__(self, nombre: str, padre: "Rol | None" = None):
+        super().__init__(nombre)
+        #O(1) inserción, O(1) búsqueda
+        self._permisos: set[str] = set()
+        self._padre: Rol | None = padre
+
+    @property
+    def padre(self) -> "Rol | None":
+        return self._padre
+
+    def establecer_padre(self, padre: "Rol") -> None:
+        #Establece herencia de roles.
+        #O(1)
+        self._padre = padre
+
+    def agregar_permiso(self, permiso: str) -> bool:
+        
+        #Añade un permiso directo al rol.
+        #O(1)
+        #Retorna False si el permiso ya existía.
+
+        if permiso in self._permisos:
+            return False
+        self._permisos.add(permiso)
+        return True
+
+    def revocar_permiso(self, permiso: str) -> bool:
+        #Elimina un permiso del rol.
+        #O(1)
+
+        if permiso not in self._permisos:
+            return False
+        self._permisos.discard(permiso)
+        return True
+
+    def tiene_permiso_directo(self, permiso: str) -> bool:
+        
+        #Comprueba si el rol tiene el permiso de forma direct.
+        # O(1)
+        return permiso in self._permisos
+
+    def tiene_permiso(self, permiso: str, visitados: set | None = None) -> bool:
+        #Comprueba si el rol tiene el permiso, incluyendo herencia recursiva.
+        #O(h·p) ya que h = profundidad de herencia, p = permisos por rol
+
+        if visitados is None:
+            visitados = set()
+
+        #Evitar ciclos
+        if self._nombre in visitados:
+            return False
+        visitados.add(self._nombre)
+
+        #O(1)
+        if self.tiene_permiso_directo(permiso):
+            return True
+
+        # O(h·p)
+        if self._padre is not None:
+            return self._padre.tiene_permiso(permiso, visitados)
+
+        return False
+
+    def obtener_todos_permisos(self, visitados: set | None = None) -> set[str]:
+        
+        #Devuelve todos los permisos como un set.
+        #O(h·p)
+        if visitados is None:
+            visitados = set()
+
+        if self._nombre in visitados:
+            return set()
+        visitados.add(self._nombre)
+
+        permisos = set(self._permisos)
+
+        if self._padre is not None:
+            permisos |= self._padre.obtener_todos_permisos(visitados)
+
+        return permisos
+
+    @property
+    def permisos_directos(self) -> frozenset:
+        return frozenset(self._permisos)
+
+    def describir(self) -> str:
+        padre_str = f", hereda de '{self._padre.nombre}'" if self._padre else ""
+        permisos_str = ", ".join(sorted(self._permisos)) if self._permisos else "ninguno"
+        return f"Rol '{self._nombre}'{padre_str} — permisos directos: [{permisos_str}]"
+
+    def tipo(self) -> str:
+        return "Rol"
