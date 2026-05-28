@@ -85,7 +85,39 @@ def benchmark_operaciones_basicas():
     filas.append(("Permiso directo [O(1)]", medir(lambda: rol2.tiene_permiso_directo("test_perm"), 5000)))
 
     tabla("BENCHMARK 1 — Operaciones bàsicas O(1)", filas)
-    
+
+def benchmark_herencia_roles():
+
+    #O(h·p)
+    #Medimos cómo escala el tiempo con la profundidad de herencia h.
+
+    print("  BENCHMARK 2 — O(h·p)")
+    print(f"  {'Profundidad h':<20} {'Permisos p':<15} {'Media(µs)':>10} {'Mediana(µs)':>12}")
+
+    permisos_por_rol = 5
+
+    for h in [1, 2, 5, 10, 20, 50]:
+        iam = IAMSystem("HerenciaBench")
+        roles_cadena = []
+        padre = None
+        for i in range(h):
+            nombre_r = f"rol_h{h}_nivel{i}"
+            r = iam.crear_rol(nombre_r, padre_nombre=padre)
+            for j in range(permisos_por_rol):
+                r.agregar_permiso(f"perm_h{h}_n{i}_p{j}")
+            padre = nombre_r
+            roles_cadena.append(nombre_r)
+
+        # El permiso que buscamos está en el nivel raíz (peor caso)
+        permiso_raiz = f"perm_h{h}_n0_p0"
+        rol_hoja = iam.obtener_rol(roles_cadena[-1])
+
+        stats = medir(lambda: rol_hoja.tiene_permiso(permiso_raiz), repeticiones=1000)
+        print(f"  {h:<20} {permisos_por_rol:<15} {stats['media']:>10} {stats['mediana']:>12}")
+
+    print(f"{'═'*70}")
+
 if __name__ == "__main__":
     print("  ANÁLISIS EMPÍRICO DE COMPLEJIDAD — Simulador IAM con RBAC")
     benchmark_operaciones_basicas()
+    benchmark_herencia_roles() 
