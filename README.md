@@ -2,7 +2,8 @@
 ### Gestió d'identitats i accessos basada en rols
 
 > **Anàlisi i Disseny d'Algoritmes Avançats — Projecte Grupal AA4**
-> Joan Cobos, Roc Reverté i Daniel Baena
+> 
+Joan Cobos, Roc Reverté i Daniel Baena
 
 ## 1. Nom del projecte
 
