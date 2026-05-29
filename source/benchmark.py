@@ -166,10 +166,12 @@ def benchmark_log_auditoria():
 
     tabla("BENCHMARK 4 — Log de auditoría", filas)
 
-if __name__ == "__main__":
+if name == "main":
     print("  ANÁLISIS EMPÍRICO DE COMPLEJIDAD — Simulador IAM con RBAC")
     benchmark_operaciones_basicas()
-    benchmark_herencia_roles() 
+    benchmark_herencia_roles()
     benchmark_verificar_acceso()
     benchmark_log_auditoria()
+
+    print("  Benchmark completado.\n")
 
