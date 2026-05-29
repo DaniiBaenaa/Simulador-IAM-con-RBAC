@@ -182,3 +182,42 @@ class TestIAMSystem(unittest.TestCase):
         self.assertTrue(self.iam.verificar_acceso("grace", "res_x"))
         self.iam.revocar_rol_de_usuario("grace", "role_x")
         self.assertFalse(self.iam.verificar_acceso("grace", "res_x"))
+
+class TestPolimorfismo(unittest.TestCase):
+#Verifica que el polimorfismo funciona correctamente en las subclases de Entidad.
+
+    def test_tipo_correcto(self):
+        u = Usuario("u1")
+        r = Rol("r1")
+        rec = Recurso("rec1")
+        self.assertEqual(u.tipo(), "Usuario")
+        self.assertEqual(r.tipo(), "Rol")
+        self.assertEqual(rec.tipo(), "Recurso")
+
+    def test_describir_polimorfico(self):
+        entidades = [Usuario("u"), Rol("r"), Recurso("rec")]
+        for e in entidades:
+            desc = e.describir()
+            self.assertIsInstance(desc, str)
+            self.assertIn(e.nombre, desc)
+
+    def test_igualdad_entre_tipos(self):
+        u = Usuario("mismo_nombre")
+        r = Rol("mismo_nombre")
+        # Misma nombre pero distinto tipo -> no iguales
+        self.assertNotEqual(u, r)
+
+
+if name == "main":
+    print("  TESTS UNITARIOS — IAM RBAC")
+    loader = unittest.TestLoader()
+    suite = unittest.TestSuite()
+    suite.addTests(loader.loadTestsFromTestCase(TestEntidades))
+    suite.addTests(loader.loadTestsFromTestCase(TestHerenciaRoles))
+    suite.addTests(loader.loadTestsFromTestCase(TestIAMSystem))
+    suite.addTests(loader.loadTestsFromTestCase(TestPolimorfismo))
+    runner = unittest.TextTestRunner(verbosity=2)
+    resultado = runner.run(suite)
+    print(f"\n  Total: {resultado.testsRun} tests | "
+          f"OK: {resultado.testsRun - len(resultado.failures) - len(resultado.errors)} | "
+          f"Fallos: {len(resultado.failures)} | Errores: {len(resultado.errors)}")
