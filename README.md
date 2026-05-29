@@ -70,7 +70,10 @@ IAMSystem  (motor central, gestiona les tres entitats)
 
 
  ## 7. Instruccions d'execució i dependències
-Aclarar que totes les comandes que surten estan pensades per ser executades en bash
+Aclarar que totes les comandes que surten estan pensades per ser executades en bash, si es fa desde visual studio core:
+
+**Executar el arxiu sistemaa_IAM_principal.py a la mateixa carpeta que la resta de .py
+
 ### Requisits
 
 - Python
