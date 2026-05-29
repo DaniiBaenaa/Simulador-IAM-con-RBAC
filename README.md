@@ -103,7 +103,7 @@ python benchmark.py
 
 ## 8. Vídeo demostratiu
 
-el video no esta fet encara jeje
+https://drive.google.com/file/d/1CXH_FVegseqK2w5QIktr33lVzL11gU4g/view?usp=sharing
 
 
 ## 9. Ús d'eines externes o IA
