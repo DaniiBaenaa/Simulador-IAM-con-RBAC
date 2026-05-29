@@ -147,8 +147,29 @@ def benchmark_verificar_acceso():
 
     print(f"{'═'*70}")
 
+def benchmark_log_auditoria():
+
+    #Log de auditoría — append O(1) amortizado, lectura O(n)
+    iam = IAMSystem("LogBench")
+
+    # Llenamos el log con eventos
+    for i in range(10_000):
+        iam._registrarevento("TEST", f"evento{i}")
+
+    filas = []
+    filas.append(("Registrar evento [O(1)]",
+                  medir(lambda: iam._registrar_evento("TEST", "x"), 5000)))
+    filas.append(("Obtener log completo [O(n=10k)]",
+                  medir(lambda: iam.obtener_log(), 200)))
+    filas.append(("Obtener log filtrado [O(n)]",
+                  medir(lambda: iam.obtener_log("ACCESO_DENEGADO"), 200)))
+
+    tabla("BENCHMARK 4 — Log de auditoría", filas)
+
 if __name__ == "__main__":
     print("  ANÁLISIS EMPÍRICO DE COMPLEJIDAD — Simulador IAM con RBAC")
     benchmark_operaciones_basicas()
     benchmark_herencia_roles() 
     benchmark_verificar_acceso()
+    benchmark_log_auditoria()
+
