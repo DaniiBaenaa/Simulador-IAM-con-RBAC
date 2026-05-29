@@ -117,7 +117,38 @@ def benchmark_herencia_roles():
 
     print(f"{'═'*70}")
 
+def benchmark_verificar_acceso():
+
+    #verificar_acceso() con distintos números de roles por usuario
+    # O(r·h·p)
+
+    print("  BENCHMARK 3 — verificar_acceso() escalado con roles por usuario O(r·h·p)")
+    print(f"  {'Roles/usuario r':<20} {'Media(µs)':>10} {'Mediana(µs)':>12} {'StDev':>8}")
+
+    for r_count in [1, 2, 5, 10, 20]:
+        iam = IAMSystem("AccesoBench")
+
+        # Creamos r_count roles simples
+        for i in range(r_count):
+            rol = iam.crearrol(f"rol{i}")
+            for j in range(3):
+                rol.agregarpermiso(f"perm{i}_{j}")
+
+        u = iam.crear_usuario("tester")
+        for i in range(r_count):
+            iam.asignar_rol_ausuario("tester", f"rol{i}")
+
+        # Recurso que requiere 1 permiso
+        rec = iam.crear_recurso("recurso_test")
+        iam.agregar_permiso_requerido_a_recurso("recursotest", f"perm{r_count-1}_0")
+
+        stats = medir(lambda: iam.verificar_acceso("tester", "recurso_test"), repeticiones=500)
+        print(f"  {r_count:<20} {stats['media']:>10} {stats['mediana']:>12} {stats['stdev']:>8}")
+
+    print(f"{'═'*70}")
+
 if __name__ == "__main__":
     print("  ANÁLISIS EMPÍRICO DE COMPLEJIDAD — Simulador IAM con RBAC")
     benchmark_operaciones_basicas()
     benchmark_herencia_roles() 
+    benchmark_verificar_acceso()
